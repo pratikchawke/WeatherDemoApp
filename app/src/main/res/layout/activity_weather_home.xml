@@ -31,37 +31,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/minTempTextView"
-            app:layout_constraintTop_toBottomOf="@+id/temperatureTextView" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="691dp"
-            android:background="@drawable/ic_location"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/cityTextView"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/temperatureTextView"
+            app:max_temperature="@{weatherReport.main.temp_max}" />
 
         <TextView
             android:id="@+id/cityTextView"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="64dp"
             android:text="City Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorAccent"
+            app:city="@{weatherReport.name}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -71,7 +54,7 @@
             android:layout_marginTop="166dp"
             android:gravity="center_horizontal"
             android:text="@{weatherReport.weather.get(0).description}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -92,7 +75,7 @@
             android:text="21 *C"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@color/colorAccent"
-            app:current_temperature="@{(weatherReport.main.temp)}"
+            app:current_temperature="@{weatherReport.main.temp}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
@@ -112,7 +95,8 @@
             app:layout_constraintEnd_toStartOf="@+id/maxTempTextView"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/temperatureTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/temperatureTextView"
+            app:min_temperature="@{weatherReport.main.temp_min}" />
 
         <TextView
             android:id="@+id/pressureTextView"
@@ -120,13 +104,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
             android:gravity="center_horizontal"
-            android:text="Pressure\n+@{weatherReport."
+            android:text="Pressure"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toStartOf="@+id/cloudTextView"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/minTempTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/minTempTextView"
+            app:pressure="@{weatherReport.main.pressure}" />
 
         <TextView
             android:id="@+id/cloudTextView"
@@ -137,6 +122,7 @@
             android:text="Cloud"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorAccent"
+            app:clouds="@{weatherReport.clouds.all}"
             app:layout_constraintEnd_toStartOf="@+id/humidityTextView"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/pressureTextView"
@@ -151,6 +137,7 @@
             android:text="Humidity"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorAccent"
+            app:humidity="@{weatherReport.main.humidity}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/cloudTextView"
@@ -174,7 +161,8 @@
             app:layout_constraintEnd_toStartOf="@+id/sunsetTextView"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pressureTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/pressureTextView"
+            app:wind="@{weatherReport.wind.speed}" />
 
         <TextView
             android:id="@+id/sunsetTextView"
@@ -188,7 +176,8 @@
             app:layout_constraintEnd_toStartOf="@+id/sunriseTextView"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/windTextView"
-            app:layout_constraintTop_toTopOf="@+id/windTextView" />
+            app:layout_constraintTop_toTopOf="@+id/windTextView"
+            app:sunset="@{weatherReport.sys.sunset}" />
 
         <TextView
             android:id="@+id/sunriseTextView"
@@ -202,7 +191,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/sunsetTextView"
-            app:layout_constraintTop_toTopOf="@+id/sunsetTextView" />
+            app:layout_constraintTop_toTopOf="@+id/sunsetTextView"
+            app:sunrise="@{weatherReport.sys.sunrise}" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
@@ -229,5 +219,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="top" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="20dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_location" />
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:imageUrl="@{weatherReport.weather[0].icon}"
+            app:layout_constraintTop_toBottomOf="@+id/cityTextView"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
