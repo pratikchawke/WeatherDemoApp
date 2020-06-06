@@ -1,12 +1,17 @@
 package com.pratik.weatherdemoapp
 
 
+import android.Manifest
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
+import android.content.Context.LOCATION_SERVICE
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.location.Location
+import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.util.Log
@@ -14,6 +19,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
+import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.latitude
+import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.longitude
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -88,15 +96,32 @@ object Utils {
     fun getFormattedTime(time: Long, context: Context): String {
         val cal = Calendar.getInstance()
         val tz = cal.getTimeZone();//get your local time zone.
-        val sdf =  SimpleDateFormat("dd/MM/yyyy hh:mm a")
+        val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm a")
         sdf.setTimeZone(tz);//set time zone.
-        val localTime = sdf.format( time)
-        var date =  Date();
+        val localTime = sdf.format(time)
+        var date = Date();
         try {
             date = sdf.parse(localTime);//get local date
-        } catch (e : ParseException) {
+        } catch (e: ParseException) {
             e.printStackTrace();
         }
         return date.toString();
     }
+
+    fun isLocationPermissionGranted(context: Context): Boolean {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return false
+        }
+        return true
+    }
+
+    fun isLocationEnabled(context: Context): Boolean {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
 }

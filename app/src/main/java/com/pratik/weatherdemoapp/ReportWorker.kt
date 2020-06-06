@@ -8,6 +8,7 @@ import com.pratik.erostestapp.retrofit.ApiRequest
 import com.pratik.erostestapp.retrofit.RetrofitBuilder
 import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.data
 import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.loader
+import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.longitude
 import com.pratik.weatherdemoapp.model.WeatherReport
 import retrofit2.Call
 import retrofit2.Callback
@@ -26,10 +27,16 @@ class ReportWorker(context: Context, workerParams: WorkerParameters) :
 
     private fun weatherReport() {
         loader.showLoading()
-        apiRequest.getWeatherReport(AppConstants.API_KEY, AppConstants.LAT,AppConstants.LONG,AppConstants.UNITS)
+        apiRequest.getWeatherReport(
+            AppConstants.API_KEY,
+            WeatherHomeActivity.latitude, longitude, AppConstants.UNITS
+        )
             ?.enqueue(object : Callback<WeatherReport?> {
-                override fun onResponse(call: Call<WeatherReport?>, response: Response<WeatherReport?>) {
-                    Log.d("Pratik", "Response : "+response)
+                override fun onResponse(
+                    call: Call<WeatherReport?>,
+                    response: Response<WeatherReport?>
+                ) {
+                    Log.d("Pratik", "Response : " + response)
                     if (response.body() != null) {
                         loader.dismissLoading()
                         data!!.value = response.body()
@@ -37,7 +44,7 @@ class ReportWorker(context: Context, workerParams: WorkerParameters) :
                 }
 
                 override fun onFailure(call: Call<WeatherReport?>, t: Throwable) {
-                    Log.d("Pratik1", "Error Msg : "+t)
+                    Log.d("Pratik1", "Error Msg : " + t)
                     Log.d("Pratik1", t.cause?.message)
                     loader.dismissLoading()
                 }
