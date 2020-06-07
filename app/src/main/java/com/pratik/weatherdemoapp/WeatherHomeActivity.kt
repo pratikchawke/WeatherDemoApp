@@ -50,15 +50,24 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
 
         loader = this
 
+        /*
+        Used data binding to bind views and display layout
+         */
         val binding: ActivityWeatherHomeBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_weather_home)
-//        setContentView(R.layout.activity_weather_home)
+
+        /**
+         * Check for internet connection availability
+         */
         if (Utils.isInternetConnected(this)) {
             processFurther()
         } else {
             Utils.showNoNetworkDialog(this)
         }
 
+        /*
+        WeatherReportModel is a ViewModel class which holds LiveData. Whenever data is updated, it will always bind on views.
+         */
         WeatherReportModel().weatherReportdata.observe(this,
             Observer { data ->
                 if (data != null)
@@ -67,6 +76,9 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     }
 
     private fun processFurther() {
+        /**
+         * Here we check for location runtime permission and GPS is enabled
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Utils.isLocationPermissionGranted(this)) {
                 requestLocationPermission()
@@ -88,8 +100,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
 
     private fun requestLocationPermission() {
         ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             FINE_LOCATION_CODE
         )
     }
@@ -142,7 +153,9 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     }
 
     private fun enableLocation() {
-
+        /**
+         * Show user dialog box to enable gps from setting to get current location of user
+         */
         if (googleApiClient == null) {
             googleApiClient = GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -209,8 +222,10 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     @SuppressLint("MissingPermission")
     private fun getData() {
         showLoading()
-        val locationManager: LocationManager =
-            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        /**
+         * Get last known location of user and request for updated location. Location listener gets the updated location whenever it changed
+         */
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val criteria = Criteria()
         val bestProvider = locationManager!!.getBestProvider(criteria, false)
         locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, listener!!)
@@ -222,6 +237,10 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
             longitude = location!!.longitude
         }
 
+        /**
+         * Apply a periodic request with the help of WorkManger and get data from webservices. If data is present in cache then it will not create one more request
+         * Data will always updated in background with 2 hours of interval.
+         */
         if (CacheManager.getInstance(this).getString(AppConstants.REPORT) == null) {
             Handler().postDelayed(Runnable {
 
@@ -273,8 +292,8 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
 
     companion object {
         lateinit var loader: LoadingListener
-        var latitude: Double = 18.906715
-        var longitude: Double = 72.807385
+        var latitude: Double = AppConstants.LAT
+        var longitude: Double = AppConstants.LONG
         var data: MutableLiveData<WeatherReport> = MutableLiveData()
 
     }
