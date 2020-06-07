@@ -1,4 +1,4 @@
-package com.pratik.erostestapp.listener
+package com.pratik.weatherdemoapp.listener
 
 interface LoadingListener {
     fun showLoading()

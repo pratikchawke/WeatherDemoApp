@@ -3,16 +3,21 @@ package com.pratik.weatherdemoapp
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.Criteria
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -26,8 +31,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
-import com.pratik.erostestapp.listener.LoadingListener
+import com.google.gson.Gson
 import com.pratik.weatherdemoapp.databinding.ActivityWeatherHomeBinding
+import com.pratik.weatherdemoapp.listener.LoadingListener
 import com.pratik.weatherdemoapp.model.WeatherReport
 import com.pratik.weatherdemoapp.viewmodel.WeatherReportModel
 import java.util.concurrent.TimeUnit
@@ -39,7 +45,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     private val FINE_LOCATION_CODE = 1234
     private val ENABLE_LOCATION_CODE = 1235
     private var googleApiClient: GoogleApiClient? = null
-    private lateinit var location: Location
+    private var location: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,7 +110,22 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
                         enableLocation()
                     }
                 } else {
-                    //todo show custom message to user and ask for permission if it is mandatory
+                    AlertDialog.Builder(this)
+                        .setTitle("Permission needed")
+                        .setMessage(getString(R.string.permission_required_message))
+                        .setPositiveButton("Settings") { dialog, which ->
+                            dialog.dismiss()
+                            val intent = Intent()
+                            intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
+                            val uri = Uri.fromParts("package", packageName, null)
+                            intent.data = uri
+                            startActivityForResult(intent, ENABLE_LOCATION_CODE)
+                        }
+                        .setNegativeButton("Cancel") { dialog, which ->
+                            dialog.dismiss()
+                            finish()
+                        }
+                        .show()
                 }
             }
             ENABLE_LOCATION_CODE -> {
@@ -189,22 +210,64 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
 
     @SuppressLint("MissingPermission")
     private fun getData() {
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-        latitude = location.latitude
-        longitude = location.longitude
+        showLoading()
+        val locationManager: LocationManager =
+            getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val criteria = Criteria()
+        val bestProvider = locationManager!!.getBestProvider(criteria, false)
+        locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, listener!!)
+        location = locationManager.getLastKnownLocation(bestProvider)
+
+
+        if (location != null) {
+            latitude = location!!.latitude
+            longitude = location!!.longitude
+        }
+
         if (CacheManager.getInstance(this).getString(AppConstants.REPORT) == null) {
-            val periodicWorkRequest =
-                PeriodicWorkRequest.Builder(ReportWorker::class.java, 2, TimeUnit.HOURS).build()
-            val singleWorkRequest = OneTimeWorkRequest.Builder(ReportWorker::class.java).build()
-            WorkManager.getInstance().enqueue(singleWorkRequest)
+            Handler().postDelayed(Runnable {
+
+                val periodicWorkRequest =
+                    PeriodicWorkRequest.Builder(ReportWorker::class.java, 2, TimeUnit.HOURS).build()
+//                val singleWorkRequest = OneTimeWorkRequest.Builder(ReportWorker::class.java).build()
+                WorkManager.getInstance().enqueue(periodicWorkRequest)
+                dismissLoading()
+            }, 3000)
+        } else {
+            Log.d(TAG, "Stored String : ${CacheManager.getInstance(this).getString(AppConstants.REPORT)}")
+            val string =  CacheManager.getInstance(this).getString(AppConstants.REPORT)
+            Log.d(TAG, "Converted String : $string")
+            val gson = Gson()
+            val weatherReport: WeatherReport = gson.fromJson(
+                string, WeatherReport::class.java)
+            data.value = weatherReport
+            dismissLoading()
+        }
+    }
+
+    private val listener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location?) {
+            latitude = location!!.latitude
+            longitude = location!!.longitude
+        }
+
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+            TODO("Not yet implemented")
+        }
+
+        override fun onProviderEnabled(provider: String?) {
+            TODO("Not yet implemented")
+        }
+
+        override fun onProviderDisabled(provider: String?) {
+            TODO("Not yet implemented")
         }
     }
 
     companion object {
         lateinit var loader: LoadingListener
-        var latitude: Double = 0.0
-        var longitude: Double = 0.0
+        var latitude: Double = 18.906715
+        var longitude: Double = 72.807385
         var data: MutableLiveData<WeatherReport> = MutableLiveData()
 
     }

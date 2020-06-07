@@ -6,11 +6,9 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
-import android.content.Context.LOCATION_SERVICE
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.location.Location
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
@@ -20,8 +18,6 @@ import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.latitude
-import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.longitude
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -123,5 +119,4 @@ object Utils {
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
-
 }

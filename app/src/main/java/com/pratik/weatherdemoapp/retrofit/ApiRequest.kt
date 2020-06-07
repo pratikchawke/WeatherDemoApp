@@ -1,4 +1,4 @@
-package com.pratik.erostestapp.retrofit
+package com.pratik.weatherdemoapp.retrofit
 import com.pratik.weatherdemoapp.model.WeatherReport
 import retrofit2.Call
 import retrofit2.http.GET

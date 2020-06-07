@@ -4,17 +4,19 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.pratik.erostestapp.retrofit.ApiRequest
-import com.pratik.erostestapp.retrofit.RetrofitBuilder
+import com.google.gson.Gson
 import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.data
 import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.loader
 import com.pratik.weatherdemoapp.WeatherHomeActivity.Companion.longitude
 import com.pratik.weatherdemoapp.model.WeatherReport
+import com.pratik.weatherdemoapp.retrofit.ApiRequest
+import com.pratik.weatherdemoapp.retrofit.RetrofitBuilder
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ReportWorker(context: Context, workerParams: WorkerParameters) :
+
+class ReportWorker(val context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
 
     private var apiRequest: ApiRequest =
@@ -36,10 +38,18 @@ class ReportWorker(context: Context, workerParams: WorkerParameters) :
                     call: Call<WeatherReport?>,
                     response: Response<WeatherReport?>
                 ) {
-                    Log.d("Pratik", "Response : " + response)
+                    Log.d("Pratik", "Response : " + response.body())
                     if (response.body() != null) {
                         loader.dismissLoading()
                         data!!.value = response.body()
+                        // Create Gson object.
+
+                        // Create Gson object.
+                        val gson = Gson()
+                        val jsonObject = gson.toJson(response.body())
+                        Log.d("Pratik", "jsonObject : " + jsonObject)
+                        CacheManager.getInstance(context)
+                            .putString(AppConstants.REPORT, "" + jsonObject)
                     }
                 }
 

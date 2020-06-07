@@ -100,5 +100,10 @@ data class WeatherReport(
             view.text = "Sunrise \n" +  Utils.getFormattedTime(sunrise!!.toLong()* 1000,view.context)
         }
     }
+
+    override fun toString(): String {
+        return "WeatherReport(base='$base', clouds=$clouds, cod=$cod, coord=$coord, dt=$dt, id=$id, main=$main, name='$name', sys=$sys, timezone=$timezone, visibility=$visibility, weather=$weather, wind=$wind)"
+    }
+
 }
 

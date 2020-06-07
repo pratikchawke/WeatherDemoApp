@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">WeatherDemoApp</string>
     <string name="no_internet_connected">Please connect to internet !!!</string>
+    <string name="permission_required_message">This app requires location permission to get weather report. To process further you must allow this permission.</string>
 </resources>
