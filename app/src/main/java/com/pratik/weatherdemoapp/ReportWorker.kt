@@ -23,11 +23,15 @@ class ReportWorker(val context: Context, workerParams: WorkerParameters) :
         RetrofitBuilder.retrofitInstance!!.create(ApiRequest::class.java)
 
     override fun doWork(): Result {
-        weatherReport()
+        Log.d("ReportWorker","doWork in background !!!")
+        if (CacheManager.getInstance(context).getString(AppConstants.REPORT) == null)
+            getWeatherReport()
+        else if (Utils.isMetered(context))
+            getWeatherReport()
         return Result.success()
     }
 
-    private fun weatherReport() {
+    private fun getWeatherReport() {
         loader.showLoading()
         apiRequest.getWeatherReport(
             AppConstants.API_KEY,
@@ -42,9 +46,6 @@ class ReportWorker(val context: Context, workerParams: WorkerParameters) :
                     if (response.body() != null) {
                         loader.dismissLoading()
                         data!!.value = response.body()
-                        // Create Gson object.
-
-                        // Create Gson object.
                         val gson = Gson()
                         val jsonObject = gson.toJson(response.body())
                         Log.d("Pratik", "jsonObject : " + jsonObject)

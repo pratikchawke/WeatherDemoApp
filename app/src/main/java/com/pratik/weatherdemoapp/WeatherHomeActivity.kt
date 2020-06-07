@@ -23,9 +23,7 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.work.OneTimeWorkRequest
-import androidx.work.PeriodicWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -227,19 +225,28 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
         if (CacheManager.getInstance(this).getString(AppConstants.REPORT) == null) {
             Handler().postDelayed(Runnable {
 
+                val constraint = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+//                    .setRequiredNetworkType(NetworkType.METERED) //This constarint is not calling doWork() function of worker. Handled metered check in worker class
+                    .build()
+
                 val periodicWorkRequest =
-                    PeriodicWorkRequest.Builder(ReportWorker::class.java, 2, TimeUnit.HOURS).build()
-//                val singleWorkRequest = OneTimeWorkRequest.Builder(ReportWorker::class.java).build()
+                    PeriodicWorkRequest.Builder(ReportWorker::class.java, 2, TimeUnit.HOURS)
+                        .setConstraints(constraint)
+                        .build()
                 WorkManager.getInstance().enqueue(periodicWorkRequest)
+
+//                val singleWorkRequest = OneTimeWorkRequest.Builder(ReportWorker::class.java).build()
+//                WorkManager.getInstance().enqueue(singleWorkRequest)
+
                 dismissLoading()
             }, 3000)
         } else {
-            Log.d(TAG, "Stored String : ${CacheManager.getInstance(this).getString(AppConstants.REPORT)}")
-            val string =  CacheManager.getInstance(this).getString(AppConstants.REPORT)
-            Log.d(TAG, "Converted String : $string")
             val gson = Gson()
             val weatherReport: WeatherReport = gson.fromJson(
-                string, WeatherReport::class.java)
+                CacheManager.getInstance(this).getString(AppConstants.REPORT),
+                WeatherReport::class.java
+            )
             data.value = weatherReport
             dismissLoading()
         }
