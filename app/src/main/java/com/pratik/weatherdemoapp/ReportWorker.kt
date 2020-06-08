@@ -18,15 +18,15 @@ import retrofit2.Response
 
 class ReportWorker(val context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
-
+    private val TAG = ReportWorker::class.java.simpleName
     private var apiRequest: ApiRequest =
         RetrofitBuilder.retrofitInstance!!.create(ApiRequest::class.java)
 
     override fun doWork(): Result {
-        Log.d("ReportWorker","doWork in background !!!")
+        Log.d(TAG, "doWork in background !!!")
         if (CacheManager.getInstance(context).getString(AppConstants.REPORT) == null)
             getWeatherReport()
-        else if (Utils.isMetered(context))
+        else if (Utils.isWifiConnected(context))
             getWeatherReport()
         return Result.success()
     }
@@ -42,21 +42,21 @@ class ReportWorker(val context: Context, workerParams: WorkerParameters) :
                     call: Call<WeatherReport?>,
                     response: Response<WeatherReport?>
                 ) {
-                    Log.d("Pratik", "Response : " + response.body())
+                    Log.d(TAG, "Response : " + response.body())
                     if (response.body() != null) {
                         loader.dismissLoading()
                         data!!.value = response.body()
                         val gson = Gson()
                         val jsonObject = gson.toJson(response.body())
-                        Log.d("Pratik", "jsonObject : " + jsonObject)
+                        Log.d(TAG, "jsonObject : $jsonObject")
                         CacheManager.getInstance(context)
                             .putString(AppConstants.REPORT, "" + jsonObject)
                     }
                 }
 
                 override fun onFailure(call: Call<WeatherReport?>, t: Throwable) {
-                    Log.d("Pratik1", "Error Msg : " + t)
-                    Log.d("Pratik1", t.cause?.message)
+                    Log.d(TAG, "Error Msg : " + t)
+                    Log.d(TAG, t.cause?.message)
                     loader.dismissLoading()
                 }
             })

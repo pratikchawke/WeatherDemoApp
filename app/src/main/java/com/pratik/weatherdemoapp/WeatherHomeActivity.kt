@@ -246,7 +246,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
 
                 val constraint = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
-//                    .setRequiredNetworkType(NetworkType.METERED) //This constarint is not calling doWork() function of worker. Handled metered check in worker class
+//                    .setRequiredNetworkType(NetworkType.METERED) //This constraint is not calling doWork() function of worker. Handled metered check in worker class
                     .build()
 
                 val periodicWorkRequest =
@@ -278,15 +278,12 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
         }
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-            TODO("Not yet implemented")
         }
 
         override fun onProviderEnabled(provider: String?) {
-            TODO("Not yet implemented")
         }
 
         override fun onProviderDisabled(provider: String?) {
-            TODO("Not yet implemented")
         }
     }
 

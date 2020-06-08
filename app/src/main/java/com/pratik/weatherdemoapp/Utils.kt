@@ -37,8 +37,17 @@ object Utils {
 
     fun isMetered(context: Context): Boolean {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val isMetered = cm.isActiveNetworkMetered()
+        val isMetered = cm.isActiveNetworkMetered
         return isMetered
+    }
+
+    fun isWifiConnected(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = cm.activeNetworkInfo
+        if (networkInfo != null && networkInfo.type == ConnectivityManager.TYPE_WIFI) {
+            return true;
+        }
+        return false
     }
 
     fun showNoNetworkDialog(context: Activity) {
@@ -59,7 +68,7 @@ object Utils {
         Log.d(TAG, "Hide Loading !!!!")
         try {
             if (dialog!! != null) {
-                if (dialog!!.isShowing()) dialog!!.dismiss()
+                if (dialog!!.isShowing) dialog!!.dismiss()
             }
         } catch (e: Exception) {
             Log.d(TAG, "Exception $e")
@@ -79,9 +88,9 @@ object Utils {
     fun getProgressDialog(context: Context): Dialog {
         if (dialog == null) {
             dialog = Dialog(context)
-            dialog!!.getWindow()!!.requestFeature(Window.FEATURE_NO_TITLE)
+            dialog!!.window!!.requestFeature(Window.FEATURE_NO_TITLE)
         }
-        dialog!!.getWindow()!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog!!.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog!!.setCancelable(false)
         val factory = LayoutInflater.from(context)
         val customPopupView: View = factory.inflate(R.layout.loading_dialog, null)
@@ -91,17 +100,17 @@ object Utils {
 
     fun getFormattedTime(time: Long, context: Context): String {
         val cal = Calendar.getInstance()
-        val tz = cal.getTimeZone();//get your local time zone.
+        val tz = cal.timeZone//get your local time zone.
         val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm a")
-        sdf.setTimeZone(tz);//set time zone.
+        sdf.timeZone = tz//set time zone.
         val localTime = sdf.format(time)
-        var date = Date();
+        var date = Date()
         try {
-            date = sdf.parse(localTime);//get local date
+            date = sdf.parse(localTime)//get local date
         } catch (e: ParseException) {
-            e.printStackTrace();
+            e.printStackTrace()
         }
-        return date.toString();
+        return date.toString()
     }
 
     fun isLocationPermissionGranted(context: Context): Boolean {
