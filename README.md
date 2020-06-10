@@ -1,4 +1,4 @@
-# WeatherDemoApp : This application is developed as an assignment gievn by Intelegencia 
+# WeatherDemoApp : This application is developed as an assignment given by Intelegencia 
 
 Some of the Android architecture and design patterns that are used in the Weather app development  
 
