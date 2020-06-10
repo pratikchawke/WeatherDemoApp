@@ -9,8 +9,9 @@ import com.bumptech.glide.Glide
 import com.pratik.weatherdemoapp.AppConstants
 import com.pratik.weatherdemoapp.Utils
 import com.pratik.weatherdemoapp.model.*
+import javax.inject.Inject
 
-data class WeatherReport(
+data class WeatherReport (
     val base: String,
     val clouds: Clouds,
     val cod: Int,

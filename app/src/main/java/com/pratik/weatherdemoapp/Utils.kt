@@ -18,6 +18,10 @@ import android.view.View
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import com.pratik.weatherdemoapp.application.db
+import com.pratik.weatherdemoapp.db.WeatherEntity
+import com.pratik.weatherdemoapp.model.WeatherReport
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -127,5 +131,15 @@ object Utils {
     fun isLocationEnabled(context: Context): Boolean {
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+
+    fun addToDB(context: Context, weatherReport: WeatherReport) {
+        val gson = Gson()
+        val jsonObject = gson.toJson(weatherReport)
+        Log.d(TAG, "jsonObject : $jsonObject")
+        CacheManager.getInstance(context).putString(AppConstants.REPORT, "" + jsonObject)
+        //
+        db.weatherDao().insert(WeatherEntity(1, jsonObject.toString()))
     }
 }

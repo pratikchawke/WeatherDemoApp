@@ -21,8 +21,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.work.*
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
@@ -30,11 +30,15 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.gson.Gson
+import com.pratik.weatherdemoapp.application.component
+import com.pratik.weatherdemoapp.application.db
 import com.pratik.weatherdemoapp.databinding.ActivityWeatherHomeBinding
 import com.pratik.weatherdemoapp.listener.LoadingListener
 import com.pratik.weatherdemoapp.model.WeatherReport
 import com.pratik.weatherdemoapp.viewmodel.WeatherReportModel
+import com.pratik.weatherdemoapp.viewmodel.WeatherReportModelFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 
 class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
@@ -44,6 +48,12 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     private val ENABLE_LOCATION_CODE = 1235
     private var googleApiClient: GoogleApiClient? = null
     private var location: Location? = null
+
+    @Inject
+    lateinit var weatherViewModelFactory: WeatherReportModelFactory
+
+    private lateinit var weatherViewModel: WeatherReportModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +65,9 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
          */
         val binding: ActivityWeatherHomeBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_weather_home)
+
+        component.inject(this)
+        weatherViewModel = ViewModelProviders.of(this,weatherViewModelFactory).get(WeatherReportModel::class.java)
 
         /**
          * Check for internet connection availability
@@ -68,10 +81,13 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
         /*
         WeatherReportModel is a ViewModel class which holds LiveData. Whenever data is updated, it will always bind on views.
          */
-        WeatherReportModel().weatherReportdata.observe(this,
+        weatherViewModel.weatherReportData.observe(this,
             Observer { data ->
-                if (data != null)
+                if (data != null) {
                     binding.weatherReport = data
+                    //todo updateDB
+                    Utils.addToDB(this,data)
+                }
             })
     }
 
@@ -106,8 +122,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         Log.d(TAG, "requestCode : $requestCode")
         when (requestCode) {
@@ -241,8 +256,12 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
          * Apply a periodic request with the help of WorkManger and get data from webservices. If data is present in cache then it will not create one more request
          * Data will always updated in background with 2 hours of interval.
          */
+
         if (CacheManager.getInstance(this).getString(AppConstants.REPORT) == null) {
+//        if(db.weatherDao().weatherEntityList.isEmpty()){
             Handler().postDelayed(Runnable {
+
+                weatherViewModel.getWeatherReport()
 
                 val constraint = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -266,7 +285,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
                 CacheManager.getInstance(this).getString(AppConstants.REPORT),
                 WeatherReport::class.java
             )
-            data.value = weatherReport
+            weatherViewModel.mutableWeatherReportData.value = weatherReport
             dismissLoading()
         }
     }
@@ -291,7 +310,7 @@ class WeatherHomeActivity : AppCompatActivity(), LoadingListener {
         lateinit var loader: LoadingListener
         var latitude: Double = AppConstants.LAT
         var longitude: Double = AppConstants.LONG
-        var data: MutableLiveData<WeatherReport> = MutableLiveData()
+//        var data: MutableLiveData<WeatherReport> = MutableLiveData()
 
     }
 
